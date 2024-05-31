@@ -11,14 +11,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "123456"
-	dbname   = "budget"
-)
-
 func main() {
 	db, err := connectToDb()
 

@@ -24,7 +24,6 @@ type User struct {
 	LastName   string `json:"last_name"`
 	Email      string `json:"email"`
 	Age        int    `json:"age"`
-	InternalId int
 }
 
 func getConnectionString() (string, error) {
@@ -127,7 +126,7 @@ func createUserInDB(db *sql.DB) {
 }
 
 func mapUserToStruct(scanner CustomScanner, user *User) error {
-	err := scanner.Scan(&user.InternalId, &user.FirstName, &user.LastName, &user.Email, &user.ID)
+	err := scanner.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Age)
 
 	if err != nil {
 		return err
