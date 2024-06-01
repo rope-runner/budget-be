@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"time"
 
+    dbUtils "budget-be/db"
+    "budget-be/controllers"
+
 	"github.com/go-playground/validator/v10"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo/v4"
@@ -12,7 +15,7 @@ import (
 )
 
 func main() {
-	db, err := connectToDb()
+	db, err := dbUtils.ConnectToDb()
 
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -21,15 +24,16 @@ func main() {
 	defer db.Close()
 
 	e := echo.New()
-	controllers := BaseController{
-		db: db,
+	ctrl := &controllers.BaseController{
+        DB: db,
 	}
 
 	e.Use(middleware.Logger())
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = &controllers.CustomValidator{Validator: validator.New()}
 
-	e.GET("/user/:id", controllers.getUser)
-	e.POST("/user", controllers.createUser)
+	e.GET("/user/:id", ctrl.GetUser)
+	e.GET("user", ctrl.GetUsers)
+	e.POST("/user", ctrl.CreateUser)
 
 	s := &http.Server{
 		Addr:              ":8080",
