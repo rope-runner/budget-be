@@ -45,7 +45,7 @@ func (bc *BaseController) Login(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(bc.Secret))
 
 	if err != nil {
 		return err

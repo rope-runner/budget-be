@@ -7,6 +7,7 @@ import (
 
 	"budget-be/controllers"
 	dbUtils "budget-be/db"
+	"budget-be/utils"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
@@ -17,6 +18,14 @@ import (
 )
 
 func main() {
+	err := utils.InitEnv()
+
+	secret, present := utils.GetSecret()
+
+	if !present {
+		secret = "default_secret"
+	}
+
 	db, err := dbUtils.ConnectToDb()
 
 	if err != nil {
@@ -27,7 +36,8 @@ func main() {
 
 	e := echo.New()
 	ctrl := &controllers.BaseController{
-        DB: db,
+		DB:     db,
+		Secret: secret,
 	}
 
 	e.Use(middleware.Logger())
@@ -36,24 +46,18 @@ func main() {
 	e.GET("/user/:id", ctrl.GetUser)
 	e.GET("user", ctrl.GetUsers)
 	e.POST("/user", ctrl.CreateUser)
-    e.GET("/login", ctrl.Login)
+	e.GET("/login", ctrl.Login)
 
-    authorized := e.Group("/authorized")
+	authorized := e.Group("/api/v1")
 
-    config := echoJwt.Config{
-        NewClaimsFunc: func(c echo.Context) jwt.Claims {
-            return new(controllers.JwtCustomClaims)
-        },
-        SigningKey: []byte("secret"),
-    } 
+	config := echoJwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(controllers.JwtCustomClaims)
+		},
+		SigningKey: []byte(secret),
+	}
 
-    authorized.Use(echoJwt.WithConfig(config))
-
-    authorized.GET("/test", func(c echo.Context) error {
-        return c.JSON(http.StatusOK, echo.Map{
-            "result": "works!",
-        })
-    })
+	authorized.Use(echoJwt.WithConfig(config))
 
 	s := &http.Server{
 		Addr:              ":8080",

@@ -6,19 +6,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 const dbEnvName = "DB_CONNECTION"
 
 func GetConnectionString() (string, error) {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("error loading .env file: %s", err.Error()))
-	}
-
 	connStr, present := os.LookupEnv(dbEnvName)
 
 	if !present {
