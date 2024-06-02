@@ -36,6 +36,18 @@ func (bc *BaseController) Login(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
+	t, err := GenerateToken(user, bc.Secret)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+	})
+}
+
+func GenerateToken(user *utils.User, secret string) (string, error) {
 	claims := &JwtCustomClaims{
 		user,
 		jwt.RegisteredClaims{
@@ -45,13 +57,5 @@ func (bc *BaseController) Login(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte(bc.Secret))
-
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	return token.SignedString([]byte(secret))
 }

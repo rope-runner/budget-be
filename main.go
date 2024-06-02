@@ -45,7 +45,7 @@ func main() {
 
 	e.GET("/user/:id", ctrl.GetUser)
 	e.GET("user", ctrl.GetUsers)
-	e.POST("/user", ctrl.CreateUser)
+	e.POST("/register", ctrl.CreateUser)
 	e.GET("/login", ctrl.Login)
 
 	authorized := e.Group("/api/v1")
